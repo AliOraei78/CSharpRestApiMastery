@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="README..md" />
+  </Folder>
   <Project Path="ApiConsumer/ApiConsumer.csproj" />
   <Project Path="RestApiProject/RestApiProject.csproj" />
 </Solution>

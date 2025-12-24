@@ -7,4 +7,13 @@ public class Book
     public string Author { get; set; } = string.Empty;
     public int Year { get; set; }
     public decimal Price { get; set; }
+
+    public Book(int id, string title, string author, int year, decimal price)
+    {
+        Id = id;
+        Title = title;
+        Author = author;
+        Year = year;
+        Price = price;
+    }
 }
