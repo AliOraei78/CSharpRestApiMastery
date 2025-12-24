@@ -12,18 +12,18 @@ public class BookService : IBookService
         new Book(3, "The Great Gatsby", "F. Scott Fitzgerald", 1925, 100000m)
     };
 
-    public IEnumerable<Book> GetAll() => _books;
+    public async Task<IEnumerable<Book>> GetAllAsync() => await Task.FromResult(_books);
 
-    public Book? GetById(int id) => _books.FirstOrDefault(b => b.Id == id);
+    public async Task<Book?> GetByIdAsync(int id) => await Task.FromResult(_books.FirstOrDefault(b => b.Id == id));
 
-    public Book Create(Book book)
+    public async Task<Book> CreateAsync(Book book)
     {
         book.Id = _books.Max(b => b.Id) + 1;
         _books.Add(book);
-        return book;
+        return await Task.FromResult(book);
     }
 
-    public bool Update(int id, Book updatedBook)
+    public async Task<bool> UpdateAsync(int id, Book updatedBook)
     {
         var book = _books.FirstOrDefault(b => b.Id == id);
         if (book is null) return false;
@@ -35,7 +35,7 @@ public class BookService : IBookService
         return true;
     }
 
-    public bool Delete(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
         var book = _books.FirstOrDefault(b => b.Id == id);
         if (book is null) return false;
@@ -43,5 +43,6 @@ public class BookService : IBookService
         _books.Remove(book);
         return true;
     }
+
     public int GetServiceId() => _serviceId;
 }

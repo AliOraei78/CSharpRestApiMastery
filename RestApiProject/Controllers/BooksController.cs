@@ -15,15 +15,16 @@ public class BooksController : ControllerBase
     }
 
     /// <summary>
-    /// Get all books
+    /// Retrieves all books
     /// </summary>
-    /// <returns>List of books</returns>
-    /// <response code="200">The list of books was returned successfully</response>
+    /// <returns>A list of books</returns>
+    /// <response code="200">Returns the list of books</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public ActionResult<IEnumerable<Book>> GetAll()
+    public async Task<ActionResult<IEnumerable<Book>>> GetAll()
     {
-        return Ok(_bookService.GetAll());
+        var books = await _bookService.GetAllAsync();
+        return Ok(books);
     }
 
     /// <summary>
@@ -36,9 +37,9 @@ public class BooksController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public ActionResult<Book> GetById(int id)
+    public async Task<ActionResult<Book>> GetById(int id)
     {
-        var book = _bookService.GetById(id);
+        var book = await _bookService.GetByIdAsync(id);
         return book is not null ? Ok(book) : NotFound();
     }
 
@@ -52,9 +53,12 @@ public class BooksController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public ActionResult<Book> Create(Book book)
+    public async Task<ActionResult<Book>> Create(Book book)
     {
-        var created = _bookService.Create(book);
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var created = await _bookService.CreateAsync(book);
         return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -69,9 +73,9 @@ public class BooksController : ControllerBase
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Update(int id, Book updatedBook)
+    public async Task<IActionResult> Update(int id, Book updatedBook)
     {
-        var updated = _bookService.Update(id, updatedBook);
+        var updated = await _bookService.UpdateAsync(id, updatedBook);
         return updated ? NoContent() : NotFound();
     }
 
@@ -85,9 +89,9 @@ public class BooksController : ControllerBase
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-        var deleted = _bookService.Delete(id);
+        var deleted = await _bookService.DeleteAsync(id);
         return deleted ? NoContent() : NotFound();
     }
 

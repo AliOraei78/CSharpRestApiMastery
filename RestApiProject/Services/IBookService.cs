@@ -4,11 +4,11 @@ namespace RestApiProject.Services;
 
 public interface IBookService
 {
-    IEnumerable<Book> GetAll();
-    Book? GetById(int id);
-    Book Create(Book book);
-    bool Update(int id, Book updatedBook);
-    bool Delete(int id);
+    Task<IEnumerable<Book>> GetAllAsync();
+    Task<Book?> GetByIdAsync(int id);
+    Task<Book> CreateAsync(Book book);
+    Task<bool> UpdateAsync(int id, Book updatedBook);
+    Task<bool> DeleteAsync(int id);
 
     int GetServiceId();
 }
