@@ -46,10 +46,17 @@ public class Book
 - `DELETE /api/books/{id}`
 
 ### Controller Example
-```csharp
+--- csharp
 [ApiController]
 [Route("api/[controller]")]
 public class BooksController : ControllerBase
 {
     // CRUD actions with proper HTTP verbs and status codes
 }
+
+## Dependency Injection + Services
+
+- Service registration: Singleton, Scoped, Transient.
+- Lifetime behavior testing with object IDs.
+- Service injection into controllers.
+- Refactored CRUD logic into IBookService.
