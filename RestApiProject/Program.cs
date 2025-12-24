@@ -1,8 +1,13 @@
+using RestApiProject.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
 
 var app = builder.Build();
 
@@ -10,6 +15,13 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+        c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+    });
 }
 
 app.UseHttpsRedirection();
@@ -32,6 +44,60 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+var books = new List<Book>
+{
+    new Book { Id = 1, Title = "1984", Author = "George Orwell", Year = 1949, Price = 120000m },
+    new Book { Id = 2, Title = "To Kill a Mockingbird", Author = "Harper Lee", Year = 1960, Price = 150000m },
+    new Book { Id = 3, Title = "The Great Gatsby", Author = "F. Scott Fitzgerald", Year = 1925, Price = 100000m }
+};
+
+// GET all books
+app.MapGet("/books", () => books)
+   .WithName("GetAllBooks");
+
+// GET book by id
+app.MapGet("/books/{id}", (int id) =>
+{
+    var book = books.FirstOrDefault(b => b.Id == id);
+    return book is not null ? Results.Ok(book) : Results.NotFound();
+})
+.WithName("GetBookById");
+
+// POST new book
+app.MapPost("/books", (Book book) =>
+{
+    book.Id = books.Max(b => b.Id) + 1;
+    books.Add(book);
+    return Results.Created($"/books/{book.Id}", book);
+})
+.WithName("CreateBook");
+
+// PUT update book
+app.MapPut("/books/{id}", (int id, Book updatedBook) =>
+{
+    var book = books.FirstOrDefault(b => b.Id == id);
+    if (book is null) return Results.NotFound();
+
+    book.Title = updatedBook.Title;
+    book.Author = updatedBook.Author;
+    book.Year = updatedBook.Year;
+    book.Price = updatedBook.Price;
+
+    return Results.NoContent();
+})
+.WithName("UpdateBook");
+
+// DELETE book
+app.MapDelete("/books/{id}", (int id) =>
+{
+    var book = books.FirstOrDefault(b => b.Id == id);
+    if (book is null) return Results.NotFound();
+
+    books.Remove(book);
+    return Results.NoContent();
+})
+.WithName("DeleteBook");
 
 app.Run();
 
