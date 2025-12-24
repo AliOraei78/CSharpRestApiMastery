@@ -41,3 +41,14 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - Lifetime behavior testing with object IDs.
 - Service injection into controllers.
 - Refactored CRUD logic into IBookService.
+
+## Middleware + Logging
+
+- Custom middleware for request timing and logging.
+- Serilog integration with console and file sinks.
+- Structured logging for request start/end and duration.
+- Replaced default logging with Serilog.
+
+### Middleware Pipeline
+- RequestTimingMiddleware added before MapControllers.
+- Logs written to console and rolling daily files in /logs folder.

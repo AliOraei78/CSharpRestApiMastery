@@ -1,7 +1,18 @@
+using RestApiProject.Middleware;
 using RestApiProject.Models;
 using RestApiProject.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File("logs/api-log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog(); // Replace the default logging system
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -31,6 +42,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Custom middleware
+app.UseRequestTiming();
 
 app.MapControllers();
 /*
