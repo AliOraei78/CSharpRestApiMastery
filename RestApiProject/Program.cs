@@ -1,4 +1,5 @@
 using RestApiProject.Models;
+using RestApiProject.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+// Register services with different lifetimes
+builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one instance for the entire application)
+builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
+builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
 
 
 var app = builder.Build();
