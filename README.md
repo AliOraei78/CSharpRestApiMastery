@@ -18,16 +18,6 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - `PUT /books/{id}` – Update book
 - `DELETE /books/{id}` – Delete book
 
-### Model
---- csharp
-public class Book
-{
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Author { get; set; } = string.Empty;
-    public int Year { get; set; }
-    public decimal Price { get; set; }
-}
 
 ## Controllers + Routing + HTTP Verbs
 
@@ -45,11 +35,9 @@ public class Book
 - `PUT /api/books/{id}`
 - `DELETE /api/books/{id}`
 
-### Controller Example
-```csharp
-[ApiController]
-[Route("api/[controller]")]
-public class BooksController : ControllerBase
-{
-    // CRUD actions with proper HTTP verbs and status codes
-}
+## Dependency Injection + Services
+
+- Service registration: Singleton, Scoped, Transient.
+- Lifetime behavior testing with object IDs.
+- Service injection into controllers.
+- Refactored CRUD logic into IBookService.
