@@ -52,3 +52,13 @@ A professional REST API project built step-by-step to master modern .NET web dev
 ### Middleware Pipeline
 - RequestTimingMiddleware added before MapControllers.
 - Logs written to console and rolling daily files in /logs folder.
+
+## Swagger + OpenAPI
+
+- Swashbuckle.AspNetCore integration.
+- Swagger UI at root (/) with custom title and description.
+- Endpoint documentation with XML comments and attributes.
+- Response types and status codes documented.
+
+### Swagger UI
+- Interactive testing for all CRUD operations.

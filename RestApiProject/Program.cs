@@ -1,3 +1,4 @@
+﻿using Microsoft.OpenApi;
 using RestApiProject.Middleware;
 using RestApiProject.Models;
 using RestApiProject.Services;
@@ -25,6 +26,20 @@ builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one 
 builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
 builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
 
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "BookStore API",
+        Version = "v1",
+        Description = "Simple Api",
+        Contact = new OpenApiContact
+        {
+            Name = "Ali Jenabi",
+            Email = "a.jenabi78@example.com"
+        }
+    });
+});
 
 var app = builder.Build();
 
