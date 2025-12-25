@@ -2,9 +2,12 @@
 using RestApiProject.Models;
 using RestApiProject.Services;
 
+namespace RestApiProject.Controllers.V2;
+
 [ApiController]
-[Route("api/[controller]")]
 [Produces("application/json")]
+[ApiVersion("2.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class BooksController : ControllerBase
 {
     private readonly IBookService _bookService;
@@ -24,7 +27,15 @@ public class BooksController : ControllerBase
     public async Task<ActionResult<IEnumerable<Book>>> GetAll()
     {
         var books = await _bookService.GetAllAsync();
-        return Ok(books);
+        return Ok(books.Select(b => new
+        {
+            b.Id,
+            b.Title,
+            b.Author,
+            b.Year,
+            b.Price,
+            IsAvailable = b.IsAvailable
+        }));
     }
 
     /// <summary>

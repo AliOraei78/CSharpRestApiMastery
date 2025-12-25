@@ -62,3 +62,12 @@ A professional REST API project built step-by-step to master modern .NET web dev
 
 ### Swagger UI
 - Interactive testing for all CRUD operations.
+
+## API Versioning
+
+- Microsoft.AspNetCore.Mvc.Versioning integration.
+- URL segment versioning (api/v{version}/books).
+- Query string and header versioning support.
+- Multiple controller versions (V1 and V2).
+- Swagger UI with version selector dropdown.
+- V2 adds new field `IsAvailable` to demonstrate version differences.

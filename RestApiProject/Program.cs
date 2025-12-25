@@ -1,8 +1,11 @@
-﻿using Microsoft.OpenApi;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.OpenApi;
 using RestApiProject.Middleware;
 using RestApiProject.Models;
 using RestApiProject.Services;
 using Serilog;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,15 +20,7 @@ builder.Host.UseSerilog(); // Replace the default logging system
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-// Register services with different lifetimes
-builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one instance for the entire application)
-builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
-builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
-
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -39,6 +34,45 @@ builder.Services.AddSwaggerGen(c =>
             Email = "a.jenabi78@example.com"
         }
     });
+    c.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Title = "BookStore API",
+        Version = "v2",
+        Description = "Simple Api",
+        Contact = new OpenApiContact
+        {
+            Name = "Ali Jenabi",
+            Email = "a.jenabi78@example.com"
+        }
+    });
+});
+
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddOpenApi();
+
+// Register services with different lifetimes
+builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one instance for the entire application)
+builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
+builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
+
+// API Versioning settings
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(), // /api/v1/books
+        new QueryStringApiVersionReader("api-version"), // ?api-version=1.0
+        new HeaderApiVersionReader("x-api-version") // Header: x-api-version=1.0
+    );
+});
+
+// Show versions in Swagger UI
+builder.Services.AddVersionedApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
 });
 
 var app = builder.Build();
@@ -48,11 +82,16 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-        c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+        var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
+        foreach (var description in provider.ApiVersionDescriptions)
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                description.GroupName.ToUpperInvariant());
+        }
+        options.RoutePrefix = string.Empty;
     });
 }
 
