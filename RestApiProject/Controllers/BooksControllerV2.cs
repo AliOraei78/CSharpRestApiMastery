@@ -86,6 +86,9 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, Book updatedBook)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
         var updated = await _bookService.UpdateAsync(id, updatedBook);
         return updated ? NoContent() : NotFound();
     }

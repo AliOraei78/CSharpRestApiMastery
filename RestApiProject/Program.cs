@@ -6,6 +6,9 @@ using RestApiProject.Models;
 using RestApiProject.Services;
 using Serilog;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using RestApiProject.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +49,11 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+builder.Services.AddFluentValidationAutoValidation(); // Automatic validation
+builder.Services.AddFluentValidationClientsideAdapters(); // For client-side validation if needed
+builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>(); // Register validators from the assembly
+
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();

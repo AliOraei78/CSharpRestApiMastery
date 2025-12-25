@@ -71,3 +71,11 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - Multiple controller versions (V1 and V2).
 - Swagger UI with version selector dropdown.
 - V2 adds new field `IsAvailable` to demonstrate version differences.
+
+## FluentValidation + Validation
+
+- FluentValidation for complex validation rules.
+- Automatic validation in controllers with AddFluentValidationAutoValidation().
+- Custom error messages for Title, Author, Year, Price.
+- Integration with ASP.NET Core pipeline (ModelState).
+- Validation errors returned as 400 Bad Request with detailed messages.
