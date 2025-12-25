@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RestApiProject.Models;
 using RestApiProject.Services;
 
@@ -8,6 +9,7 @@ namespace RestApiProject.Controllers.V2;
 [Produces("application/json")]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Authorize(Roles = "Admin")]
 public class BooksController : ControllerBase
 {
     private readonly IBookService _bookService;

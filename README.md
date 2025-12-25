@@ -79,3 +79,13 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - Custom error messages for Title, Author, Year, Price.
 - Integration with ASP.NET Core pipeline (ModelState).
 - Validation errors returned as 400 Bad Request with detailed messages.
+
+## Authentication + JWT (Custom)
+
+- Custom JWT authentication without Identity.
+- AuthService for token generation.
+- JWT Bearer authentication with signing key.
+- Login endpoint returns JWT token with expiration.
+- [Authorize] attribute on protected endpoints.
+- Role-based authorization (Admin/User).
+- Swagger support for Bearer token authorization.

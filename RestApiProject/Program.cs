@@ -1,14 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using RestApiProject.Middleware;
 using RestApiProject.Models;
 using RestApiProject.Services;
-using Serilog;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using RestApiProject.Validators;
+using Serilog;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +52,17 @@ builder.Services.AddSwaggerGen(c =>
             Email = "a.jenabi78@example.com"
         }
     });
+    c.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        Description = "JWT Authorization header using the Bearer scheme."
+    });
+    c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("bearer", document)] = []
+    });
 });
 
 builder.Services.AddFluentValidationAutoValidation(); // Automatic validation
@@ -62,6 +77,26 @@ builder.Services.AddOpenApi();
 builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one instance for the entire application)
 builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
 builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
+
+// Register AuthService
+builder.Services.AddSingleton<AuthService>();
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "BookStoreApi",
+            ValidAudience = "BookStoreClient",
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.ASCII.GetBytes("YourSuperSecretKey1234567890123456"))
+        };
+    });
 
 // API Versioning settings
 builder.Services.AddApiVersioning(options =>
@@ -107,6 +142,10 @@ app.UseHttpsRedirection();
 
 // Custom middleware
 app.UseRequestTiming();
+
+// Add Authentication and Authorization
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapControllers();
 /*
