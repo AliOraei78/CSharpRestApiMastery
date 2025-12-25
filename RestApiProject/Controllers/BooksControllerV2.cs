@@ -9,7 +9,7 @@ namespace RestApiProject.Controllers.V2;
 [Produces("application/json")]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Manager")]
 public class BooksController : ControllerBase
 {
     private readonly IBookService _bookService;
@@ -66,6 +66,7 @@ public class BooksController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [Authorize(Policy = "AdminOver18")]
     public async Task<ActionResult<Book>> Create(Book book)
     {
         if (!ModelState.IsValid)

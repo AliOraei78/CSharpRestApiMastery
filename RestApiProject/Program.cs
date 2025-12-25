@@ -12,6 +12,7 @@ using RestApiProject.Models;
 using RestApiProject.Services;
 using RestApiProject.Validators;
 using Serilog;
+using System.Security.Claims;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -97,6 +98,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.ASCII.GetBytes("YourSuperSecretKey1234567890123456"))
         };
     });
+
+builder.Services.AddAuthorization(options =>
+{
+    // Policy: Admin over 18
+    options.AddPolicy("AdminOver18", policy =>
+        policy.RequireRole("Admin")
+              .RequireAssertion(context =>
+                  context.User.HasClaim(c => c.Type == ClaimTypes.DateOfBirth &&
+                  DateTime.Parse(c.Value) <= DateTime.Now.AddYears(-18))));
+});
 
 // API Versioning settings
 builder.Services.AddApiVersioning(options =>

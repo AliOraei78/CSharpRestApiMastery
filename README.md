@@ -89,3 +89,10 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - [Authorize] attribute on protected endpoints.
 - Role-based authorization (Admin/User).
 - Swagger support for Bearer token authorization.
+
+## Authorization + Role-Based + Policy
+
+- Role-based authorization with [Authorize(Roles = "Admin")]
+- Custom policy for complex requirements (e.g., Admin over 18 from claims).
+- Protected endpoints for different roles.
+- Testing with different JWT tokens in Swagger.
