@@ -1,47 +1,49 @@
-﻿using RestApiProject.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using RestApiProject.Data;
+using RestApiProject.Models;
 
 namespace RestApiProject.Services;
 
 public class BookService : IBookService
 {
     private readonly int _serviceId = Random.Shared.Next(1, 100000);
-    private readonly List<Book> _books = new()
+    private readonly AppDbContext _context;
+
+    public BookService(AppDbContext context)
     {
-        new Book(1, "1984", "George Orwell", 1949, 120000m),
-        new Book(2, "To Kill a Mockingbird", "Harper Lee", 1960, 150000m),
-        new Book(3, "The Great Gatsby", "F. Scott Fitzgerald", 1925, 100000m)
-    };
+        _context = context;
+    }
 
-    public async Task<IEnumerable<Book>> GetAllAsync() => await Task.FromResult(_books);
+    public async Task<List<Book>> GetAllAsync() => await _context.Books.ToListAsync();
 
-    public async Task<Book?> GetByIdAsync(int id) => await Task.FromResult(_books.FirstOrDefault(b => b.Id == id));
+    public async Task<Book?> GetByIdAsync(int id) => await _context.Books.FindAsync(id);
 
     public async Task<Book> CreateAsync(Book book)
     {
-        book.Id = _books.Max(b => b.Id) + 1;
-        _books.Add(book);
-        return await Task.FromResult(book);
+        _context.Books.Add(book);
+        await _context.SaveChangesAsync();
+        return book;
     }
-
-    public async Task<bool> UpdateAsync(int id, Book updatedBook)
+    public async Task UpdateAsync(int id, Book updatedBook)
     {
-        var book = _books.FirstOrDefault(b => b.Id == id);
-        if (book is null) return false;
+        var book = await _context.Books.FindAsync(id);
+        if (book == null) throw new KeyNotFoundException("Book not found");
 
         book.Title = updatedBook.Title;
         book.Author = updatedBook.Author;
         book.Year = updatedBook.Year;
         book.Price = updatedBook.Price;
-        return true;
+
+        await _context.SaveChangesAsync();
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        var book = _books.FirstOrDefault(b => b.Id == id);
-        if (book is null) return false;
+        var book = await _context.Books.FindAsync(id);
+        if (book == null) throw new KeyNotFoundException("Book not found");
 
-        _books.Remove(book);
-        return true;
+        _context.Books.Remove(book);
+        await _context.SaveChangesAsync();
     }
 
     public int GetServiceId() => _serviceId;

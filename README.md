@@ -96,3 +96,12 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - Custom policy for complex requirements (e.g., Admin over 18 from claims).
 - Protected endpoints for different roles.
 - Testing with different JWT tokens in Swagger.
+
+## EF Core + Database Integration
+
+- Entity Framework Core with SQL Server.
+- DbContext with seed data.
+- Repository pattern in BookService.
+- CRUD operations with real database.
+- Connection string configuration in appsettings.json.
+- Migrations for schema creation.

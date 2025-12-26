@@ -92,8 +92,15 @@ public class BooksController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var updated = await _bookService.UpdateAsync(id, updatedBook);
-        return updated ? NoContent() : NotFound();
+        try
+        {
+            await _bookService.UpdateAsync(id, updatedBook);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>
@@ -108,8 +115,15 @@ public class BooksController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(int id)
     {
-        var deleted = await _bookService.DeleteAsync(id);
-        return deleted ? NoContent() : NotFound();
+        try
+        {
+            await _bookService.DeleteAsync(id);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     /// <summary>

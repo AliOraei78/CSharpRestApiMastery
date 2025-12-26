@@ -14,6 +14,8 @@ using RestApiProject.Validators;
 using Serilog;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+using RestApiProject.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +68,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 builder.Services.AddFluentValidationAutoValidation(); // Automatic validation
 builder.Services.AddFluentValidationClientsideAdapters(); // For client-side validation if needed
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>(); // Register validators from the assembly
@@ -75,9 +80,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>(); // Regist
 builder.Services.AddOpenApi();
 
 // Register services with different lifetimes
-builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one instance for the entire application)
+//builder.Services.AddSingleton<IBookService, BookService>();   // Singleton (one instance for the entire application)
 builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
-builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
+//builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
 
 // Register AuthService
 builder.Services.AddSingleton<AuthService>();
