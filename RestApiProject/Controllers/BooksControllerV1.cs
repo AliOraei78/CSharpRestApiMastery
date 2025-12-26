@@ -70,8 +70,15 @@ public class BooksController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var created = await _bookService.CreateAsync(book);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _bookService.CreateAsync(book);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id, version = "1.0" }, created);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
     }
 
     /// <summary>

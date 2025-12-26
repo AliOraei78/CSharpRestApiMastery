@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestApiProject.Exceptions;
 using RestApiProject.Models;
 using RestApiProject.Services;
 
@@ -72,8 +73,15 @@ public class BooksController : ControllerBase
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
 
-        var created = await _bookService.CreateAsync(book);
-        return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+        try
+        {
+            var created = await _bookService.CreateAsync(book);
+            return CreatedAtAction(nameof(GetById), new { id = created.Id, version = "2.0" }, created);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+        }
     }
 
     /// <summary>
@@ -97,9 +105,9 @@ public class BooksController : ControllerBase
             await _bookService.UpdateAsync(id, updatedBook);
             return NoContent();
         }
-        catch (KeyNotFoundException)
+        catch (RestApiProject.Exceptions.NotFoundException)
         {
-            return NotFound();
+            throw new NotFoundException($"Book with id {id} not found");
         }
     }
 

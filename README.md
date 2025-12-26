@@ -113,3 +113,11 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - ProblemDetails standard responses.
 - Structured validation errors.
 - Logging exceptions with Serilog.
+
+## Testing + Unit/Integration Tests
+
+- xUnit test project with Moq.
+- Unit tests for BookService (Get, Create, Update, Delete).
+- Integration tests for BooksController with WebApplicationFactory.
+- Authentication and Authorization tests (401, 403).
+- High test coverage for service and controller.

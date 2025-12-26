@@ -3,5 +3,6 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="ApiConsumer/ApiConsumer.csproj" />
+  <Project Path="RestApiProject.Tests/RestApiProject.Tests.csproj" Id="008ce5d9-ff2b-460a-9cde-a15deb03c526" />
   <Project Path="RestApiProject/RestApiProject.csproj" />
 </Solution>
