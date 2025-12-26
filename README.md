@@ -105,3 +105,11 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - CRUD operations with real database.
 - Connection string configuration in appsettings.json.
 - Migrations for schema creation.
+
+## Error Handling + Global Exception Handler
+
+- Custom exceptions: NotFoundException, ValidationException.
+- Global Exception Handler middleware.
+- ProblemDetails standard responses.
+- Structured validation errors.
+- Logging exceptions with Serilog.

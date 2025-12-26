@@ -84,6 +84,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IBookService, BookService>();      // Scoped (one instance per HTTP request)
 //builder.Services.AddTransient<IBookService, BookService>();   // Transient (a new instance every time)
 
+builder.Services.AddScoped<GlobalExceptionHandler>();
+
 // Register AuthService
 builder.Services.AddSingleton<AuthService>();
 
@@ -156,12 +158,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Custom middleware
-app.UseRequestTiming();
-
 // Add Authentication and Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Custom middleware
+app.UseRequestTiming();
+app.UseMiddleware<GlobalExceptionHandler>();
 
 app.MapControllers();
 /*

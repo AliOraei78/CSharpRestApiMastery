@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RestApiProject.Data;
+using RestApiProject.Exceptions;
 using RestApiProject.Models;
 
 namespace RestApiProject.Services;
@@ -27,7 +28,8 @@ public class BookService : IBookService
     public async Task UpdateAsync(int id, Book updatedBook)
     {
         var book = await _context.Books.FindAsync(id);
-        if (book == null) throw new KeyNotFoundException("Book not found");
+        if (book == null)
+            throw new NotFoundException($"Book with id {id} not found");
 
         book.Title = updatedBook.Title;
         book.Author = updatedBook.Author;
@@ -40,7 +42,8 @@ public class BookService : IBookService
     public async Task DeleteAsync(int id)
     {
         var book = await _context.Books.FindAsync(id);
-        if (book == null) throw new KeyNotFoundException("Book not found");
+        if (book == null)
+            throw new NotFoundException($"Book with id {id} not found");
 
         _context.Books.Remove(book);
         await _context.SaveChangesAsync();
