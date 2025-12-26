@@ -75,6 +75,7 @@ builder.Services.AddFluentValidationAutoValidation(); // Automatic validation
 builder.Services.AddFluentValidationClientsideAdapters(); // For client-side validation if needed
 builder.Services.AddValidatorsFromAssemblyContaining<BookValidator>(); // Register validators from the assembly
 
+builder.Services.AddMemoryCache();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -157,6 +158,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseResponseCaching();
 
 // Add Authentication and Authorization
 app.UseAuthentication();

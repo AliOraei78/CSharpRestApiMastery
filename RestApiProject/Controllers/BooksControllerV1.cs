@@ -26,6 +26,7 @@ public class BooksController : ControllerBase
     /// <response code="200">Returns the list of books</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ResponseCache(Duration = 60, Location = ResponseCacheLocation.Any)]
     public async Task<ActionResult<IEnumerable<Book>>> GetAll()
     {
         var books = await _bookService.GetAllAsync();

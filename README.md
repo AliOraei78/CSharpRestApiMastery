@@ -121,3 +121,12 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - Integration tests for BooksController with WebApplicationFactory.
 - Authentication and Authorization tests (401, 403).
 - High test coverage for service and controller.
+
+## Performance + Caching
+
+- IMemoryCache in BookService for caching list of books.
+- Cache invalidation on Create/Update/Delete.
+- Sliding (5 min) and absolute (20 min) expiration.
+- Response Caching middleware for HTTP GET responses.
+- [ResponseCache] attribute on GetAll action (60 seconds, public cache).
+- Faster response times for repeated requests.

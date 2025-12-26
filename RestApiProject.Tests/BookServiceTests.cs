@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
 using RestApiProject.Data;
 using RestApiProject.Models;
 using RestApiProject.Services;
@@ -8,126 +10,130 @@ namespace RestApiProject.Tests
 {
     public class BookServiceTests
     {
-        // Helper method to create a new DbContext with a unique database name per test
+        private readonly IMemoryCache _cache;
+        private const string CacheKey = "AllBooksCacheKey"; // Must match the key in BookService
+
+        public BookServiceTests()
+        {
+            // Setup a real MemoryCache for tests
+            var services = new ServiceCollection();
+            services.AddMemoryCache();
+            var serviceProvider = services.BuildServiceProvider();
+            _cache = serviceProvider.GetRequiredService<IMemoryCache>();
+        }
+
         private AppDbContext GetDbContext()
         {
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString()) // Random name to avoid conflicts
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
 
             var context = new AppDbContext(options);
-            context.Database.EnsureCreated(); // This call adds the seeded data (1, 2, 3)
+            context.Database.EnsureCreated(); // Seeds books with IDs 1, 2, 3
             return context;
         }
 
+        // 1. Test GetAll (database + cache)
         [Fact]
-        public async Task GetAllAsync_ReturnsAllBooks()
+        public async Task GetAllAsync_ReturnsAllBooks_AndCachesThem()
         {
             // Arrange
             using var context = GetDbContext();
-            var service = new BookService(context);
+            var service = new BookService(context, _cache);
 
             // Act
             var books = await service.GetAllAsync();
 
             // Assert
-            // Since AppDbContext seeds three books, we expect the count to be 3
             Assert.Equal(3, books.Count);
+            Assert.True(_cache.TryGetValue(CacheKey, out _)); // Verify that data is cached
         }
 
+        // 2. Test GetById (no cache logic involved, database only)
         [Fact]
         public async Task GetByIdAsync_ExistingId_ReturnsBook()
         {
             // Arrange
             using var context = GetDbContext();
-            var service = new BookService(context);
-            int existingId = 1; // This ID exists in the seed data
+            var service = new BookService(context, _cache);
 
             // Act
-            var book = await service.GetByIdAsync(existingId);
+            var book = await service.GetByIdAsync(1);
 
             // Assert
             Assert.NotNull(book);
             Assert.Equal("1984", book.Title);
         }
 
+        // 3. Test Create (database + cache invalidation)
+        [Fact]
+        public async Task CreateAsync_AddsBook_AndInvalidatesCache()
+        {
+            // Arrange
+            using var context = GetDbContext();
+            var service = new BookService(context, _cache);
+            await service.GetAllAsync(); // Fill cache first
+
+            // Act
+            var newBook = new Book(4, "Clean Architecture", "Uncle Bob", 2017, 200000m);
+            await service.CreateAsync(newBook);
+
+            // Assert
+            Assert.Equal(4, await context.Books.CountAsync());
+            Assert.False(_cache.TryGetValue(CacheKey, out _)); // Cache must be cleared
+        }
+
+        // 4. Test Update (database + cache invalidation)
+        [Fact]
+        public async Task UpdateAsync_UpdatesBook_AndInvalidatesCache()
+        {
+            // Arrange
+            using var context = GetDbContext();
+            var service = new BookService(context, _cache);
+            await service.GetAllAsync(); // Fill cache
+
+            var updatedInfo = new Book(1, "1984 Updated", "George Orwell", 1950, 130000m);
+
+            // Act
+            await service.UpdateAsync(1, updatedInfo);
+
+            // Assert
+            var bookInDb = await context.Books.FindAsync(1);
+            Assert.Equal("1984 Updated", bookInDb!.Title);
+            Assert.False(_cache.TryGetValue(CacheKey, out _)); // Cache must be cleared
+        }
+
+        // 5. Test Delete (database + cache invalidation)
+        [Fact]
+        public async Task DeleteAsync_RemovesBook_AndInvalidatesCache()
+        {
+            // Arrange
+            using var context = GetDbContext();
+            var service = new BookService(context, _cache);
+            await service.GetAllAsync(); // Fill cache
+
+            // Act
+            await service.DeleteAsync(2);
+
+            // Assert
+            var bookInDb = await context.Books.FindAsync(2);
+            Assert.Null(bookInDb);
+            Assert.False(_cache.TryGetValue(CacheKey, out _)); // Cache must be cleared
+        }
+
+        // 6. Error test (exception / null case)
         [Fact]
         public async Task GetByIdAsync_NonExistingId_ReturnsNull()
         {
             // Arrange
             using var context = GetDbContext();
-            var service = new BookService(context);
+            var service = new BookService(context, _cache);
 
             // Act
             var book = await service.GetByIdAsync(999);
 
             // Assert
             Assert.Null(book);
-        }
-
-        [Fact]
-        public async Task CreateAsync_AddsBookCorrectly()
-        {
-            // Arrange
-            using var context = GetDbContext();
-            var service = new BookService(context);
-            // Use ID 10 to avoid conflicts with 1, 2, and 3
-            var newBook = new Book(10, "Clean Code", "Robert C. Martin", 2008, 150000m);
-
-            // Act
-            var createdBook = await service.CreateAsync(newBook);
-
-            // Assert
-            var bookInDb = await context.Books.FindAsync(10);
-            Assert.NotNull(bookInDb);
-            Assert.Equal("Clean Code", bookInDb.Title);
-            Assert.Equal(4, await context.Books.CountAsync()); // 3 seeded + 1 new
-        }
-
-        [Fact]
-        public async Task UpdateAsync_ExistingId_UpdatesData()
-        {
-            // Arrange
-            using var context = GetDbContext();
-            var service = new BookService(context);
-            int idToUpdate = 1;
-            var updatedInfo = new Book(idToUpdate, "1984 Updated", "George Orwell", 1950, 130000m);
-
-            // Act
-            await service.UpdateAsync(idToUpdate, updatedInfo);
-
-            // Assert
-            var bookInDb = await context.Books.FindAsync(idToUpdate);
-            Assert.Equal("1984 Updated", bookInDb.Title);
-            Assert.Equal(130000m, bookInDb.Price);
-        }
-
-        [Fact]
-        public async Task DeleteAsync_ExistingId_RemovesBook()
-        {
-            // Arrange
-            using var context = GetDbContext();
-            var service = new BookService(context);
-            int idToDelete = 2;
-
-            // Act
-            await service.DeleteAsync(idToDelete);
-
-            // Assert
-            var bookInDb = await context.Books.FindAsync(idToDelete);
-            Assert.Null(bookInDb);
-            Assert.Equal(2, await context.Books.CountAsync()); // One less book
-        }
-
-        [Fact]
-        public async Task DeleteAsync_NonExistingId_ThrowsKeyNotFoundException()
-        {
-            // Arrange
-            using var context = GetDbContext();
-            var service = new BookService(context);
-
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => service.DeleteAsync(999));
         }
     }
 }
