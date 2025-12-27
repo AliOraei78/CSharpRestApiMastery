@@ -244,6 +244,13 @@ app.MapDelete("/books/{id}", (int id) =>
 })
 .WithName("DeleteBook");
 */
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 app.Run();
 
 internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

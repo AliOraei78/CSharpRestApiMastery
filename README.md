@@ -130,3 +130,11 @@ A professional REST API project built step-by-step to master modern .NET web dev
 - Response Caching middleware for HTTP GET responses.
 - [ResponseCache] attribute on GetAll action (60 seconds, public cache).
 - Faster response times for repeated requests.
+
+## Deployment + Docker + Azure
+
+- Multi-stage Dockerfile for optimized image.
+- Local Docker testing with `docker build` and `docker run`.
+- Image pushed to Docker Hub (`yourusername/bookstore-api:latest`).
+- Deployed to Azure App Service (Web App for Containers).
+- HTTPS enabled by default on Azure.

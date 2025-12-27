@@ -10,7 +10,7 @@ using RestApiProject.Data;
 namespace RestApiProject.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251226102116_InitialCreate")]
+    [Migration("20251227100332_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
